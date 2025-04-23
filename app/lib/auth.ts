@@ -2,7 +2,7 @@
 import { NextAuthOptions } from 'next-auth';
 import { CustomPrismaAdapter } from './customPrismaAdapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { db } from './db';
+import { db } from '@/app/lib/db';
 import bcrypt from 'bcrypt';
 
 export const authOptions: NextAuthOptions = {

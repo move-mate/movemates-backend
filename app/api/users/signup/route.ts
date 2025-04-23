@@ -1,6 +1,6 @@
 // app/api/users/signup/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '../../../lib/db';
+import { db } from '@/app/lib/db';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 

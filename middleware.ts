@@ -9,7 +9,9 @@ export async function middleware(req: NextRequest) {
   // PUBLIC ROUTES that shouldn't require authentication
   const publicRoutes = [
     '/api/users/signup',
-    '/api/drivers/signup'
+    '/api/drivers/signup',
+    '/api/email/send',
+    '/api/email/verify'
   ];
 
   // Check if the current route is a public route

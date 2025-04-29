@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         email,
         passwordHash,
         phone,
-        role: 'user', // Default role for signup
+        role: 'user',
       },
       select: {
         id: true,

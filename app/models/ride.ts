@@ -27,3 +27,10 @@ export interface Ride {
   createdAt: Date;
   updatedAt: Date;
 }
+
+
+
+
+
+
+

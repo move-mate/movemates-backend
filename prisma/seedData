@@ -1,0 +1,2 @@
+1.npx tsc prisma/seed.ts --outDir dist
+2.node dist/seed.js

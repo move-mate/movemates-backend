@@ -1,15 +1,22 @@
 // app/api/users/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/lib/auth";
 import { db } from "@/app/lib/db";
+import { verifyToken } from "@/app/lib/jwt";
+
 
 export async function GET(req: NextRequest) {
     try {
-      const session = await getServerSession(authOptions);
-      
-      if (!session || session.user.role !== 'admin') {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const authHeader = req.headers.get('Authorization');
+
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return NextResponse.json({ error: 'Unauthorized - Token missing' }, { status: 401 });
+      }
+
+      const token = authHeader.substring(7);
+      const decoded = verifyToken(token);
+
+      if (!decoded || decoded.role !== 'admin') {
+        return NextResponse.json({ error: 'Unauthorized - Admins only' }, { status: 403 });
       }
       
       const users = await db.user.findMany({

@@ -51,11 +51,11 @@ export async function middleware(req: NextRequest) {
       pathname.startsWith(route)
     )?.[1];
 
-    if (requiredRoles && !requiredRoles.includes(decodedToken.role)) {
+    if (requiredRoles && !requiredRoles.includes(decodedToken.payload.role)) {
       return NextResponse.json({ 
         error: 'Forbidden - Insufficient permissions',
         requiredRoles,
-        yourRole: decodedToken.role
+        yourRole: decodedToken.payload.role
       }, { status: 403 });
     }
 

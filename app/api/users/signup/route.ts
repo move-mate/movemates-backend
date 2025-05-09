@@ -2,20 +2,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/app/lib/db';
 import bcrypt from 'bcrypt';
-import { z } from 'zod';
-
-// Schema for user signup validation
-const userSignupSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  phone: z.string().optional(),
-});
+import { userApplicationSchema } from './schema/userApplicationSchema';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validationResult = userSignupSchema.safeParse(body);
+    const validationResult = userApplicationSchema.safeParse(body);
     
     if (!validationResult.success) {
       return NextResponse.json(

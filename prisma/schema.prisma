@@ -66,41 +66,142 @@ model TokenBlacklist {
 }
 
 model User {
+  id                String         @id @default(cuid())
+  tokenVersion      Int            @default(0)
+  name              String
+  email             String         @unique
+  emailVerified     DateTime?
+  passwordHash      String
+  role              String         @default("user") // "user", "driver", "admin"
+  phone             String?
+  image             String?
+  dateOfBirth       DateTime?
+  address           Address?
+  emergencyContact  EmergencyContact?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  rides             Ride[]         @relation("UserRides")
+  driver            Driver?
+  accounts          Account[]
+  payments          Payment[]
+  refreshTokens     RefreshToken[]
+  savedLocations    SavedLocation[]
+}
+
+model Address {
   id            String   @id @default(cuid())
-  tokenVersion  Int      @default(0)
-  name          String
-  email         String   @unique
-  emailVerified DateTime?
-  passwordHash  String
-  role          String   @default("user") // "user", "driver", "admin"
-  phone         String?
-  image         String?
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  street        String
+  city          String
+  state         String
+  postalCode    String
+  country       String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
-  rides         Ride[]   @relation("UserRides")
-  driver        Driver?
-  accounts      Account[]
-  payments      Payment[]
-  refreshTokens RefreshToken[]
+}
+
+model EmergencyContact {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  relationship  String
+  phone         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Driver {
+  id                    String         @id @default(cuid())
+  userId                String         @unique
+  user                  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating                Float          @default(0)
+  isVerified            Boolean        @default(false)
+  isAvailable           Boolean        @default(false)
+  currentLat            Float?
+  currentLng            Float?
+  
+  // Driver qualification info
+  licenseNumber         String
+  licenseExpiryDate     DateTime
+  licenseIssuingCountry String
+  licenseClass          String
+  yearsOfExperience     Int
+  backgroundCheckStatus String         @default("pending") // "pending", "approved", "rejected"
+  
+  // Vehicle details
+  vehicle               Vehicle?
+  
+  // Financial information
+  bankAccount           BankAccount?
+  taxIdentificationNum  String?
+  
+  // Operational parameters
+  serviceAreas          ServiceArea[]
+  availabilitySchedule  Json?          // Store working hours as JSON
+  languages             String[]       // Array of languages spoken
+  additionalServices    String[]       // Additional services offered
+  
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  
+  rides                 Ride[]         @relation("DriverRides")
+}
+
+model Vehicle {
   id            String   @id @default(cuid())
-  name          String
-  rating        Float    @default(0)
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  vehicleType   String   // "small", "medium", "large"
-  vehicleColor  String
-  vehiclePlate  String
-  isAvailable   Boolean  @default(true)
-  currentLat    Float?
-  currentLng    Float?
+  driverId      String   @unique
+  driver        Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  make          String
+  model         String
+  year          Int
+  type          String   // "small", "medium", "large"
+  color         String
+  plateNumber   String
+  
+  // Insurance details
+  insuranceProvider     String
+  insurancePolicyNumber String
+  insuranceExpiryDate   DateTime
+  
+  // Additional vehicle info
+  lastInspectionDate    DateTime?
+  inspectionStatus      String   @default("pending")
+  photoExterior         String?  // URL to photo storage
+  photoInterior         String?  // URL to photo storage
+  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
-  rides         Ride[]   @relation("DriverRides")
+}
+
+model BankAccount {
+  id                String   @id @default(cuid())
+  driverId          String   @unique
+  driver            Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  accountHolderName String
+  accountNumber     String
+  bankName          String
+  branchCode        String?
+  routingNumber     String?
+  accountType       String
+  isVerified        Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model ServiceArea {
+  id          String   @id @default(cuid())
+  driverId    String
+  driver      Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  city        String
+  region      String?
+  country     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([driverId, city, country])
 }
 
 model Ride {
@@ -120,28 +221,53 @@ model Ride {
   status            String   @default("requested") // "requested", "accepted", "in_progress", "completed", "cancelled"
   estimatedDistance Float
   estimatedPrice    Float
+  actualPrice       Float?
   
   furnitureSize     String   // "small", "medium", "large"
   furnitureWeight   Float
   furnitureDetails  String
+  furniturePhotos   String[]  // URLs to furniture photos
+  specialInstructions String?
+  
   paymentMethodId   String?
   payment           Payment?
   
   scheduledTime     DateTime?
+  startTime         DateTime?
+  endTime           DateTime?
+  
+  rating            Float?
+  reviewComment     String?
+  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
 
+model SavedLocation {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String   // e.g., "Home", "Work", "Mom's House"
+  address       String
+  lat           Float
+  lng           Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, name])
+}
 
 model Payment {
   id              String   @id @default(cuid())
   userId          String
   rideId          String   @unique
-  method          String
+  method          String   // "credit_card", "debit_card", "bank_transfer", "mobile_money", etc.
   amount          Float
   currency        String   @default("ZAR")
-  status          String   @default("pending")
+  status          String   @default("pending") // "pending", "completed", "failed", "refunded"
   cardLastFour    String?
+  transactionRef  String?
+  receiptUrl      String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

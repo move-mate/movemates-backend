@@ -1,1 +1,0 @@
-// For drivers to accept rides

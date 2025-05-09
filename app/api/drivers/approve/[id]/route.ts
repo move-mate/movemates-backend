@@ -1,22 +1,14 @@
 // app/api/admin/drivers/approve/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/app/lib/db';
-import { z } from 'zod';
 import { verifyToken } from "@/app/lib/jwt";
+import { approvalSchema } from './schema/approvalSchema';
 
-
-const approvalSchema = z.object({
-  approved: z.boolean(),
-  rejectionReason: z.string().optional(),
-  backgroundCheckStatus: z.enum(['approved', 'rejected']).optional(),
-  inspectionStatus: z.enum(['approved', 'rejected']).optional(),
-});
-
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest) {
   try {
+    const url = new URL(req.url);
+    const driverId = url.pathname.split('/').pop();
+
     // Get current authenticated user
     const authHeader = req.headers.get('Authorization');
 
@@ -30,8 +22,6 @@ export async function PUT(
     if (!decoded || decoded.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized - Admins only' }, { status: 403 });
     }
-
-    const driverId = params.id;
     
     // Check if driver exists
     const driver = await db.driver.findUnique({

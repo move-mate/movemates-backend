@@ -12,6 +12,7 @@ const driverSignupSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   phone: z.string(),
   vehicleType: z.enum(['small', 'medium', 'large']),
+  vehicleColor: z.enum(['red', 'blue', 'white', 'black', 'gray']),
   vehiclePlate: z.string().min(2, "Vehicle plate must be valid"),
 });
 
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    const { name, email, password, phone, vehicleType, vehiclePlate } = validationResult.data;
+    const { name, email, password, phone, vehicleType, vehiclePlate, vehicleColor } = validationResult.data;
     
     // Check if user already exists
     const existingUser = await db.user.findUnique({
@@ -60,9 +61,11 @@ export async function POST(req: NextRequest) {
       // Then create driver profile
       const driver = await prisma.driver.create({
         data: {
+          name: name,
           userId: user.id,
           vehicleType,
           vehiclePlate,
+          vehicleColor: vehicleColor,
           isAvailable: true,
         },
       });

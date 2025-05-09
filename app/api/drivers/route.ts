@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       }
 
       const token = authHeader.substring(7);
-      const decoded = verifyToken(token);
+      const decoded = await verifyToken(token);
 
       if (!decoded || decoded.role !== 'admin') {
         return NextResponse.json({ error: 'Unauthorized - Admins only' }, { status: 403 });

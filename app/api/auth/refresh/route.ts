@@ -5,9 +5,9 @@ import { refreshToken } from "@/app/lib/jwt";
 export async function POST(req: NextRequest) {
   try {
     // Get refresh token from request body for stateless API
-    const { refreshToken } = await req.json();
+    const { token } = await req.json();
 
-    if (!refreshToken) {
+    if (!token) {
       return NextResponse.json(
         { error: "No refresh token provided" },
         { status: 401 }
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const userAgent = req.headers.get("user-agent") || "unknown";
 
     // Use refresh token to get new token pair
-    const tokens = await refreshToken(refreshToken, userAgent);
+    const tokens = await refreshToken(token, userAgent);
 
     if (!tokens) {
       return NextResponse.json(

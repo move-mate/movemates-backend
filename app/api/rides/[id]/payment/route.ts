@@ -4,7 +4,7 @@ import { db } from '@/app/lib/db';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     // 1. Authenticate user
@@ -22,7 +22,7 @@ export async function POST(
 
     // 3. Find the ride
     const ride = await db.ride.findUnique({
-      where: { id: params.id }
+      where: { id: context.params.id }
     });
 
     if (!ride) {
@@ -41,7 +41,7 @@ export async function POST(
     const payment = await db.payment.create({
       data: {
         userId: body.user.id,
-        rideId: params.id,
+        rideId: context.params.id,
         method: body.method,
         amount: body.amount,
         currency: body.currency || 'USD',
@@ -52,9 +52,9 @@ export async function POST(
 
     // 6. Update the ride with payment info
     const updatedRide = await db.ride.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data: {
-        paymentId: payment.id
+        // paymentId: payment.id
       }
     });
 

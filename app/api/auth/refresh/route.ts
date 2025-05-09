@@ -1,6 +1,6 @@
 // app/api/auth/refresh/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { useRefreshToken } from "@/app/lib/jwt";
+import { refreshToken } from "@/app/lib/jwt";
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const userAgent = req.headers.get("user-agent") || "unknown";
 
     // Use refresh token to get new token pair
-    const tokens = await useRefreshToken(refreshToken, userAgent);
+    const tokens = await refreshToken(refreshToken, userAgent);
 
     if (!tokens) {
       return NextResponse.json(

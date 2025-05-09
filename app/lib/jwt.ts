@@ -61,7 +61,7 @@ export function decodeJWT(token: string): any | null {
 }
 
 // Verify and use a refresh token to generate new tokens
-export async function useRefreshToken(refreshToken: string, deviceInfo?: string): Promise<TokenResponse | null> {
+export async function refreshToken(refreshToken: string, deviceInfo?: string): Promise<TokenResponse | null> {
   try {
     // Find the refresh token in the database
     const storedToken = await db.refreshToken.findUnique({

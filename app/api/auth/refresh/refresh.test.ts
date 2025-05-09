@@ -2,7 +2,7 @@
 
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/auth/refresh/route";
-import { useRefreshToken } from "@/app/lib/jwt";
+import { refreshToken } from "@/app/lib/jwt";
 
 // Mock dependencies
 jest.mock("@/app/lib/jwt", () => ({
@@ -39,12 +39,12 @@ describe("Refresh Token API Route", () => {
     });
 
     // Mock useRefreshToken to return null (invalid token)
-    (useRefreshToken as jest.Mock).mockResolvedValue(null);
+    (refreshToken as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(req);
     const data = await response.json();
 
-    expect(useRefreshToken).toHaveBeenCalledWith("invalid-refresh-token", "unknown");
+    expect(refreshToken).toHaveBeenCalledWith("invalid-refresh-token", "unknown");
     expect(response.status).toBe(401);
     expect(data.error).toBe("Invalid or expired refresh token");
   });
@@ -64,13 +64,13 @@ describe("Refresh Token API Route", () => {
       refreshToken: "new-refresh-token",
       expiresIn: 3600
     };
-    (useRefreshToken as jest.Mock).mockResolvedValue(mockTokens);
+    (refreshToken as jest.Mock).mockResolvedValue(mockTokens);
 
     const response = await POST(req);
     const data = await response.json();
 
     // Check that refresh token was used with correct parameters
-    expect(useRefreshToken).toHaveBeenCalledWith(mockRefreshToken, mockUserAgent);
+    expect(refreshToken).toHaveBeenCalledWith(mockRefreshToken, mockUserAgent);
     
     // Check response
     expect(response.status).toBe(200);
@@ -93,19 +93,19 @@ describe("Refresh Token API Route", () => {
       refreshToken: "new-refresh-token",
       expiresIn: 3600
     };
-    (useRefreshToken as jest.Mock).mockResolvedValue(mockTokens);
+    (refreshToken as jest.Mock).mockResolvedValue(mockTokens);
 
     await POST(req);
 
     // Check that refresh token was used with "unknown" user agent
-    expect(useRefreshToken).toHaveBeenCalledWith(mockRefreshToken, "unknown");
+    expect(refreshToken).toHaveBeenCalledWith(mockRefreshToken, "unknown");
   });
 
   test("should return 500 when an unexpected error occurs", async () => {
     const req = createMockRequest({ refreshToken: "valid-token" });
 
     // Mock an error in the refresh token process
-    (useRefreshToken as jest.Mock).mockRejectedValue(new Error("Token validation error"));
+    (refreshToken as jest.Mock).mockRejectedValue(new Error("Token validation error"));
     
     // Spy on console.error
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();

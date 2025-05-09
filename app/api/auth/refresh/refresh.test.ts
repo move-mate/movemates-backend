@@ -11,7 +11,7 @@ jest.mock("@/app/lib/jwt", () => ({
 
 describe("Refresh Token API Route", () => {
   // Helper to create mock requests
-  const createMockRequest = (body: any, headers = {}) => {
+  const createMockRequest = (body: any, headers: Record<string, string> = {}) => {
     return {
       json: jest.fn().mockResolvedValue(body),
       headers: {

@@ -20,7 +20,7 @@ jest.mock("@/app/lib/jwt", () => ({
 
 describe("Logout API Route", () => {
   // Helper to create mock requests
-  const createMockRequest = (body: any, headers = {}) => {
+  const createMockRequest = (body: any, headers: Record<string, string> = {}) => {
     return {
       json: jest.fn().mockResolvedValue(body),
       headers: {

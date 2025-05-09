@@ -1,6 +1,6 @@
 // app/api/drivers/available/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/app/lib/db';
+// import { db } from '@/app/lib/db';
 import { verifyToken } from "@/app/lib/jwt";
 
 export async function GET(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const latitude = searchParams.get('latitude');
     const longitude = searchParams.get('longitude');
-    const furnitureSize = searchParams.get('furnitureSize');
+    // const furnitureSize = searchParams.get('furnitureSize');
 
     if (!latitude || !longitude) {
       return NextResponse.json(
@@ -35,24 +35,24 @@ export async function GET(request: NextRequest) {
     // 3. Find available drivers near the location
     // Note: This is a simplified example - in a real app, you'd use 
     // more sophisticated geospatial queries
-    const availableDrivers = await db.driver.findMany({
-      where: {
-        isAvailable: true,
-        ...(furnitureSize ? { vehicleType: {
-          // Match the vehicle type to furniture size
-          in: getVehicleTypesForFurniture(furnitureSize)
-        }} : {})
-      },
-      include: {
-        user: {
-          select: {
-            name: true,
-            phone: true,
-            image: true
-          }
-        }
-      }
-    });
+    // const availableDrivers = await db.driver.findMany({
+    //   where: {
+    //     isAvailable: true,
+    //     ...(furnitureSize ? { vehicleType: {
+    //       // Match the vehicle type to furniture size
+    //       in: getVehicleTypesForFurniture(furnitureSize)
+    //     }} : {})
+    //   },
+    //   include: {
+    //     user: {
+    //       select: {
+    //         name: true,
+    //         phone: true,
+    //         image: true
+    //       }
+    //     }
+    //   }
+    // });
 
     // 4. Calculate distance and sort by proximity
     // const driversWithDistance = availableDrivers
@@ -84,15 +84,15 @@ export async function GET(request: NextRequest) {
 }
 
 // Helper function to determine which vehicle types can handle a furniture size
-function getVehicleTypesForFurniture(furnitureSize: string): string[] {
-  switch (furnitureSize) {
-    case 'small':
-      return ['small', 'medium', 'large'];
-    case 'medium':
-      return ['medium', 'large'];
-    case 'large':
-      return ['large'];
-    default:
-      return ['small', 'medium', 'large'];
-  }
-}
+// function getVehicleTypesForFurniture(furnitureSize: string): string[] {
+//   switch (furnitureSize) {
+//     case 'small':
+//       return ['small', 'medium', 'large'];
+//     case 'medium':
+//       return ['medium', 'large'];
+//     case 'large':
+//       return ['large'];
+//     default:
+//       return ['small', 'medium', 'large'];
+//   }
+// }

@@ -20,6 +20,14 @@ interface TokenResponse {
   expiresIn: number;
 }
 
+interface JWTDecoded {
+  payload: TokenPayload;
+  jti: string;
+  iat: number;
+  exp: number;
+}
+
+
 // Generate 
 export function generateToken(payload: TokenPayload): string {
   const jti = uuidv4();
@@ -33,7 +41,7 @@ export async function generateRefreshToken(userId: string, deviceInfo?: string):
   
   // Store in database with 7 day expiration
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7);
+  expiresAt.setDate(expiresAt.getDate() + 1);
   
   await db.refreshToken.create({
     data: {
@@ -49,7 +57,7 @@ export async function generateRefreshToken(userId: string, deviceInfo?: string):
 
 
 // Decode jwt
-export function decodeJWT(token: string): any | null {
+export function decodeJWT(token: string): JWTDecoded | null {
   try {
     const payload = token.split('.')[1];
     const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
@@ -94,17 +102,6 @@ export async function refreshToken(refreshToken: string, deviceInfo?: string): P
     return null;
   }
 }
-
-
-// Verify jwt
-// export function verifyToken(token: string): TokenPayload | null {
-//   try {
-//     const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
-//     return decoded;
-//   } catch (error) {
-//     return null;
-//   }
-// }
 
 export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {

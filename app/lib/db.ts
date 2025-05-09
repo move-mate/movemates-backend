@@ -1,5 +1,5 @@
 // lib/db.ts
-import { PrismaClient } from '@/app/generated/prisma';
+import { PrismaClient } from '@/generated/prisma';
 
 
 declare global {

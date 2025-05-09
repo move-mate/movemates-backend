@@ -33,14 +33,6 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -49,8 +41,33 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model RefreshToken {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  deviceInfo  String?  // Store user agent or device identifier
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([token])
+}
+
+model TokenBlacklist {
+  id        String   @id @default(cuid())
+  jti       String   @unique // JWT ID that has been revoked
+  reason    String?  // Optional reason for blacklisting
+  expiresAt DateTime // When the original token would expire
+  createdAt DateTime @default(now())
+  
+  @@index([jti])
+  @@index([expiresAt]) // For cleanup of expired entries
+}
+
 model User {
   id            String   @id @default(cuid())
+  tokenVersion  Int      @default(0)
   name          String
   email         String   @unique
   emailVerified DateTime?
@@ -64,7 +81,8 @@ model User {
   rides         Ride[]   @relation("UserRides")
   driver        Driver?
   accounts      Account[]
-  sessions      Session[]
+  payments      Payment[]
+  refreshTokens RefreshToken[]
 }
 
 model Driver {
@@ -118,17 +136,17 @@ model Ride {
 model Payment {
   id              String   @id @default(cuid())
   userId          String
-  rideRequestId   String   @unique
+  rideId          String   @unique
   method          String
   amount          Float
-  currency        String   @default("USD")
+  currency        String   @default("ZAR")
   status          String   @default("pending")
   cardLastFour    String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user         User        @relation(fields: [userId], references: [id])
-  rideRequest  RideRequest @relation(fields: [rideRequestId], references: [id])
+  user            User     @relation(fields: [userId], references: [id])
+  ride            Ride     @relation(fields: [rideId], references: [id])
 
   @@index([userId])
 }

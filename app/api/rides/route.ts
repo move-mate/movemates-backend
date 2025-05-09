@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from "@/app/lib/jwt";
 import { db } from '@/app/lib/db';
-import { Console } from 'console';
 
 // Create a new ride request
 export async function POST(request: NextRequest) {
@@ -15,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const decoded = verifyToken(token);
+    const decoded = await verifyToken(token);
 
     if (!decoded || decoded.role !== 'user') {
       return NextResponse.json({ error: 'Unauthorized - User only can create a route' }, { status: 403 });
@@ -69,7 +68,7 @@ export async function GET(request: NextRequest) {
       }
       
       const token = authHeader.substring(7);
-      const decoded = verifyToken(token);
+      const decoded = await verifyToken(token);
   
 
       if (!decoded || !['admin', 'driver', 'user'].includes(decoded.role)) {

@@ -3,10 +3,7 @@ import jwt from 'jsonwebtoken';
 import { db } from '@/app/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 
-
 const JWT_SECRET = process.env.JWT_SECRET || 'my-key';
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'refresh-secret';
-
 
 export interface TokenPayload {
   userId: string;

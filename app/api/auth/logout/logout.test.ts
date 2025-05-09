@@ -1,4 +1,4 @@
-// __tests__/api/auth/logout.test.ts
+// app/api/auth/logout/logout.test.ts
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/auth/logout/route";
 import { db } from "@/app/lib/db";
@@ -20,7 +20,7 @@ jest.mock("@/app/lib/jwt", () => ({
 
 describe("Logout API Route", () => {
   // Helper to create mock requests
-  const createMockRequest = (body: any, headers: Record<string, string> = {}) => {
+  const createMockRequest = (body: Record<string, unknown>, headers: Record<string, string> = {}) => {
     return {
       json: jest.fn().mockResolvedValue(body),
       headers: {
